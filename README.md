@@ -14,6 +14,24 @@ User ? AI host / MCP client ? HTTPS /api/mcp ? ServiceNow Table API ? incident
 
 The SDK creates a server and Web Standard Streamable HTTP transport for each request, with session IDs disabled and JSON responses enabled. Nothing depends on process-global sessions. Authenticated GET and DELETE return 405 because this deployment does not offer a persistent SSE stream or session termination. POST handles initialization, notifications, tool discovery, and invocation. The SDK negotiates protocol versions and validates MCP requests.
 
+## Built-in chat
+
+The home page now includes a simple chat UI backed by Ollama Cloud. Set these server-side variables in `.env.local` and in Vercel, in addition to the ServiceNow/MCP settings:
+
+| Name | Purpose |
+| --- | --- |
+| `OLLAMA_API_KEY` | Private Ollama Cloud API key |
+| `OLLAMA_MODEL` | Exact tool-capable cloud model name available to your account, from Ollama's `/api/tags` listing |
+| `CHAT_PASSWORD` | Separate private chat access password, at least 16 characters; never reuse an API key |
+
+Run `npm run dev`, open the home page, sign in with `CHAT_PASSWORD`, and chat normally (Hindi, English, or Hinglish). For example: ?INC0010001 ka status batao? or ?VPN issue ka incident banao.? Read requests run automatically. Create/update requests show exact fields with **Approve and run** and **Cancel** buttons. The server supplies `confirmed: true` only on the separate approval endpoint after verifying the signed proposal and the authenticated session. The host uses an official MCP client with a per-request in-process transport to discover/call the same existing three tools; external clients still use `/api/mcp` unchanged.
+
+Sessions use an HttpOnly, SameSite cookie (Secure on HTTPS), expire after 8 hours, and require same-origin requests. Proposals are signed, bound to the session and exact fields, and expire after 5 minutes. The UI removes a proposal before submitting a write and never retries it automatically. Approval events include the session, proposal, and MCP audit request IDs. This is shared-password access, not individual-user authentication. Stateless signed approvals are not single-use: a technically capable authenticated client can replay one within its validity period. Add a durable approval-consumption ledger and per-user identity before workflows requiring replay-proof approvals. Sign-out removes the browser cookie; rotate the chat password to invalidate all outstanding sessions.
+
+Chat history is kept in the current page only and clears on refresh/new chat; no database is required. Requests are limited to 20 messages and bounded model/tool rounds. Prompts and retrieved incident data are sent to Ollama Cloud. Review your organization's data-sharing policy, configure Vercel Firewall limits for login/chat endpoints, and use a tool-capable model. The basic app does not provide per-user quotas or persistent chat history. Chat requires a Vercel function duration of up to 180 seconds; verify your plan supports it. No Ollama key is exposed in browser code, and the browser never receives the MCP bearer secret.
+
+See the official [Ollama Cloud API](https://docs.ollama.com/cloud) and [tool-calling guide](https://docs.ollama.com/capabilities/tool-calling) for model selection and API behavior.
+
 ## Requirements and local setup
 
 Use Node.js 24 LTS (Node >=22.13 supported), npm, and an administrator-approved ServiceNow integration account. The lockfile records the installed dependencies, including Next.js, React, the MCP SDK, Zod, Vitest, and MCP Inspector.

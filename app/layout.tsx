@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-export const metadata = { title: "ServiceNow Incident MCP" };
+import "./globals.css";
+export const metadata = { title: "ServiceNow Incident Assistant" };
 export default function Layout({ children }: { children: ReactNode }) {
-  return <html lang="en"><body style={{ fontFamily: "system-ui", maxWidth: 800, margin: "64px auto", padding: 24 }}>{children}</body></html>;
+  return <html lang="en"><body>{children}</body></html>;
 }
