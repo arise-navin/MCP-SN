@@ -44,6 +44,19 @@ describe("chat host with real MCP tools and mocked external services", () => {
     expect(cookie).toContain("HttpOnly"); expect(cookie).toContain("SameSite=Strict"); expect(cookie).toContain("Secure"); expect(cookie).not.toContain(password);
     expect(sessionStatus(new Request("https://chat.example.com/api/chat/session", { headers: { Cookie: String(cookie) } })).status).toBe(200);
   });
+  it("accepts a six-character chat password", async () => {
+    const shortPassword = "123456";
+    vi.stubEnv("CHAT_PASSWORD", shortPassword);
+    const response = await login(request("/api/chat/session", { password: shortPassword }, ""));
+    expect(response.status).toBe(200);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it("rejects chat passwords shorter than six characters", async () => {
+    vi.stubEnv("CHAT_PASSWORD", "12345");
+    const response = await login(request("/api/chat/session", { password: "12345" }, ""));
+    expect(response.status).toBe(503);
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it("rejects an incorrect chat password", async () => {
     expect((await login(request("/api/chat/session", { password: "wrong" }, ""))).status).toBe(401); expect(fetch).not.toHaveBeenCalled();
   });

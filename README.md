@@ -22,7 +22,7 @@ The home page now includes a simple chat UI backed by Ollama Cloud. Set these se
 | --- | --- |
 | `OLLAMA_API_KEY` | Private Ollama Cloud API key |
 | `OLLAMA_MODEL` | Exact tool-capable cloud model name available to your account, from Ollama's `/api/tags` listing |
-| `CHAT_PASSWORD` | Separate private chat access password, at least 16 characters; never reuse an API key |
+| `CHAT_PASSWORD` | Separate private chat access password, at least 6 characters (use a longer random password for production); never reuse an API key |
 
 Run `npm run dev`, open the home page, sign in with `CHAT_PASSWORD`, and chat normally (Hindi, English, or Hinglish). For example: ?INC0010001 ka status batao? or ?VPN issue ka incident banao.? Read requests run automatically. Create/update requests show exact fields with **Approve and run** and **Cancel** buttons. The server supplies `confirmed: true` only on the separate approval endpoint after verifying the signed proposal and the authenticated session. The host uses an official MCP client with a per-request in-process transport to discover/call the same existing three tools; external clients still use `/api/mcp` unchanged.
 

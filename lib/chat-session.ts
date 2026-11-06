@@ -9,7 +9,7 @@ const sessionSchema = z.object({ id: z.uuid(), expiresAt: z.number() }).strict()
 const approvalSchema = z.object({ sessionId: z.uuid(), expiresAt: z.number(), id: z.uuid(), mutation: mutationSchema }).strict();
 function chatPassword(): string {
   const password = process.env.CHAT_PASSWORD;
-  if (!password || password.length < 16) throw new AppError("CHAT_NOT_CONFIGURED", "Set CHAT_PASSWORD to a private password of at least 16 characters on the server.", 503);
+  if (!password || password.length < 6) throw new AppError("CHAT_NOT_CONFIGURED", "Set CHAT_PASSWORD to a private password of at least 6 characters on the server.", 503);
   return password;
 }
 function signingKey(): string {
